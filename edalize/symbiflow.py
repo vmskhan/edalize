@@ -44,6 +44,9 @@ class Symbiflow(Edatool):
                         {'name' : 'pnr',
                          'type' : 'String',
                          'desc' : 'Place and Route tool. Currently only "vpr" and "nextpnr" are supported'},
+                        {'name' : 'options',
+                         'type' : 'String',
+                         'desc' : 'Tool options. If not used, default options for the tool will be used'},
                    ]}
 
             symbiflow_members = symbiflow_help['members']
@@ -151,6 +154,8 @@ class Symbiflow(Edatool):
         if part == 'xc7a35t':
             part = 'xc7a50t'
 
+        options = self.tool_options.get('options', None)
+
         makefile_params = {'top' : self.toplevel,
                            'sources' : ' '.join(file_list),
                            'partname' : partname,
@@ -160,6 +165,7 @@ class Symbiflow(Edatool):
                            'pcf' : ' '.join(pins_constraints),
                            'xdc' : ' '.join(placement_constraints),
                            'builddir' : builddir,
+                           'options' : options,
                           }
         self.render_template('symbiflow-vpr-makefile.j2',
                              'Makefile',
