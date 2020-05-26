@@ -7,8 +7,10 @@ source {{ top }}.bit.tcl
 
 write_checkpoint -force design_{{ top }}_after_source.dcp
 
-{% for key, value in clocks.items() %}
+{% if clocks %}
+    {% for key, value in clocks.items() %}
 create_clock -period {{ value }} [get_ports {{ key }}]
-{% endfor %}
+    {% endfor %}
+{% endif %}
 
 report_timing_summary -datasheet -max_paths 10 -file timing_summary.rpt
