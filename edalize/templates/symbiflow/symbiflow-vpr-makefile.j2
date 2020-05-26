@@ -22,7 +22,14 @@ XDC_OPTS = "-x ${XDC}"
 SDC_OPTS = "-s ${SDC}"
 {%- endif %}
 
+{% if fasm2bels %}
+RR_GRAPH = {{ rr_graph }}
+VPR_GRID = {{ vpr_grid }}
+
+all: timing_summary.rpt
+{% else %}
 all: ${TOP}.bit
+{% endif %}
 
 ${BUILDDIR}:
 	mkdir ${BUILDDIR}
@@ -44,6 +51,29 @@ ${TOP}.fasm: ${TOP}.route
 
 ${TOP}.bit: ${TOP}.fasm
 	cd ${BUILDDIR} && write_bitstream -d ${BITSTREAM_DEVICE} -f ${TOP}.fasm -p ${PARTNAME} -b ${TOP}.bit
+
+{% if fasm2bels %}
+timing_summary.rpt: ${TOP}.bit.v
+	vivado -mode batch -source fasm2bels.tcl
+
+${TOP}.bit.v:
+	python -m fasm2bels \
+		--db_root {{ dbroot }}/${BITSTREAM_DEVICE} \
+		--part ${PARTNAME} \
+		--bitread bitread \
+		--bit_file ${TOP}.bit \
+		--fasm_file ${TOP}.bit.fasm \
+		--pcf ${PCF} \
+		--eblif ${TOP}.eblif \
+		--connection_database channels.db \
+		--rr_graph ${RR_GRAPH} \
+		--route_file ${TOP}.route \
+		--vpr_grid_map ${VPR_GRID} \
+		${TOP}.bit.v ${TOP}.bit.tcl
+	rm channels.db
+
+{% endif %}
+
 
 clean:
 	rm -rf ${BUILDDIR}

@@ -47,6 +47,15 @@ class Symbiflow(Edatool):
                         {'name' : 'options',
                          'type' : 'String',
                          'desc' : 'Tool options. If not used, default options for the tool will be used'},
+                        {'name' : 'fasm2bels',
+                         'type' : 'Boolean',
+                         'desc' : 'Value to state whether fasm2bels is to be used.'},
+                        {'name' : 'dbroot',
+                         'type' : 'String',
+                         'desc' : 'Path to the database root (needed by fasm2bels).'},
+                        {'name' : 'clocks',
+                         'type' : 'dict',
+                         'desc' : 'Clocks to be added for having tools correctly handling timing based routing.'},
                    ]}
 
             symbiflow_members = symbiflow_help['members']
@@ -116,6 +125,9 @@ class Symbiflow(Edatool):
         placement_constraints = []
         user_files = []
 
+        vpr_grid = None
+        rr_graph = None
+
         for f in src_files:
             if f.file_type in ['verilogSource']:
                 file_list.append(f.name)
@@ -127,6 +139,10 @@ class Symbiflow(Edatool):
                 placement_constraints.append(f.name)
             if f.file_type in ['user']:
                 user_files.append(f.name)
+            if f.file_type in ['RRGraph']:
+                rr_graph = f.name
+            if f.file_type in ['VPRGrid']:
+                vpr_grid = f.name
 
         builddir = self.tool_options.get('builddir', 'build')
 
@@ -156,17 +172,43 @@ class Symbiflow(Edatool):
 
         options = self.tool_options.get('options', None)
 
-        makefile_params = {'top' : self.toplevel,
-                           'sources' : ' '.join(file_list),
-                           'partname' : partname,
-                           'part' : part,
-                           'bitstream_device' : bitstream_device,
-                           'sdc' : ' '.join(timing_constraints),
-                           'pcf' : ' '.join(pins_constraints),
-                           'xdc' : ' '.join(placement_constraints),
-                           'builddir' : builddir,
-                           'options' : options,
-                          }
+        fasm2bels = self.tool_options.get('fasm2bels', False)
+        dbroot = self.tool_options.get('dbroot', None)
+        clocks = self.tool_options.get('clocks', None)
+
+        if fasm2bels:
+
+            if any(v is None for v in [rr_graph, vpr_grid, dbroot]):
+                logger.error("When using fasm2bels, rr_graph, vpr_grid and database root must be provided")
+
+            tcl_params = {
+                'top': self.toplevel,
+                'part': partname,
+                'xdc': ' '.join(placement_constraints),
+                'clocks': clocks,
+            }
+
+            self.render_template('symbiflow-fasm2bels-tcl.j2',
+                                 'fasm2bels.tcl',
+                                 tcl_params)
+
+        makefile_params = {
+            'top': self.toplevel,
+            'sources': ' '.join(file_list),
+            'partname': partname,
+            'part': part,
+            'bitstream_device': bitstream_device,
+            'sdc': ' '.join(timing_constraints),
+            'pcf': ' '.join(pins_constraints),
+            'xdc': ' '.join(placement_constraints),
+            'builddir': builddir,
+            'options': options,
+            'fasm2bels': fasm2bels,
+            'rr_graph': rr_graph,
+            'vpr_grid': vpr_grid,
+            'dbroot': dbroot,
+        }
+
         self.render_template('symbiflow-vpr-makefile.j2',
                              'Makefile',
                              makefile_params)
