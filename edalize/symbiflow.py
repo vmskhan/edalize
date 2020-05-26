@@ -192,6 +192,10 @@ class Symbiflow(Edatool):
                                  'fasm2bels.tcl',
                                  tcl_params)
 
+            self.render_template('vivado-sh.j2',
+                                 'vivado.sh',
+                                 dict())
+
         makefile_params = {
             'top': self.toplevel,
             'sources': ' '.join(file_list),

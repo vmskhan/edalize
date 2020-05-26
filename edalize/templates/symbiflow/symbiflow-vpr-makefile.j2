@@ -54,7 +54,7 @@ ${TOP}.bit: ${TOP}.fasm
 
 {% if fasm2bels %}
 timing_summary.rpt: ${TOP}.bit.v
-	vivado -mode batch -source fasm2bels.tcl
+	bash vivado.sh
 
 ${TOP}.bit.v:
 	python -m fasm2bels \
