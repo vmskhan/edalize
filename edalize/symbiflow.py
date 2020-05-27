@@ -56,6 +56,9 @@ class Symbiflow(Edatool):
                         {'name' : 'clocks',
                          'type' : 'dict',
                          'desc' : 'Clocks to be added for having tools correctly handling timing based routing.'},
+                        {'name' : 'seed',
+                         'type' : 'String',
+                         'desc' : 'Seed assigned to the PnR tool.'},
                    ]}
 
             symbiflow_members = symbiflow_help['members']
@@ -196,6 +199,8 @@ class Symbiflow(Edatool):
                                  'vivado.sh',
                                  dict())
 
+        seed = self.tool_options.get('seed', None)
+
         makefile_params = {
             'top': self.toplevel,
             'sources': ' '.join(file_list),
@@ -211,6 +216,7 @@ class Symbiflow(Edatool):
             'rr_graph': rr_graph,
             'vpr_grid': vpr_grid,
             'dbroot': dbroot,
+            'seed': seed,
         }
 
         self.render_template('symbiflow-vpr-makefile.j2',
