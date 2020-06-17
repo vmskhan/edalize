@@ -106,11 +106,53 @@ class Symbiflow(Edatool):
         if 'xc7k' in part:
             bitstream_device = 'kintex7'
 
+        placement_constraints = None
+        pins_constraints = None
+        rr_graph = None
+        vpr_grid = None
+        for f in src_files:
+            if f.file_type in ['PCF']:
+                pins_constraints = f.name
+            if f.file_type in ['xdc']:
+                placement_constraints = f.name
+            if f.file_type in ['RRGraph']:
+                rr_graph = f.name
+            if f.file_type in ['VPRGrid']:
+                vpr_grid = f.name
+
+        fasm2bels = self.tool_options.get('fasm2bels', False)
+        dbroot = self.tool_options.get('dbroot', None)
+        clocks = self.tool_options.get('clocks', None)
+
+        if fasm2bels:
+            if any(v is None for v in [rr_graph, vpr_grid, dbroot]):
+                logger.error("When using fasm2bels, rr_graph, vpr_grid and database root must be provided")
+
+            tcl_params = {
+                'top': self.name,
+                'part': partname,
+                'xdc': placement_constraints,
+                'clocks': clocks,
+            }
+
+            self.render_template('symbiflow-fasm2bels-tcl.j2',
+                                 'fasm2bels.tcl',
+                                 tcl_params)
+
+            self.render_template('vivado-sh.j2',
+                                 'vivado.sh',
+                                 dict())
+
         makefile_params = {
                 'top' : self.name,
                 'partname' : partname,
                 'bitstream_device' : bitstream_device,
                 'builddir' : builddir,
+                'fasm2bels': fasm2bels,
+                'pcf': pins_constraints,
+                'rr_graph': rr_graph,
+                'vpr_grid': vpr_grid,
+                'dbroot': dbroot,
             }
 
         self.render_template('symbiflow-nextpnr-makefile.j2',
@@ -182,7 +224,6 @@ class Symbiflow(Edatool):
         clocks = self.tool_options.get('clocks', None)
 
         if fasm2bels:
-
             if any(v is None for v in [rr_graph, vpr_grid, dbroot]):
                 logger.error("When using fasm2bels, rr_graph, vpr_grid and database root must be provided")
 

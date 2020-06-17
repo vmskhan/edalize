@@ -5,7 +5,16 @@ PARTNAME:= {{ partname }}
 BITSTREAM_DEVICE := {{ bitstream_device }}
 BUILDDIR:= {{ builddir }}
 
+PCF	:= {{ pcf }}
+
+{% if fasm2bels %}
+RR_GRAPH = {{ rr_graph }}
+VPR_GRID = {{ vpr_grid }}
+
+all: timing_summary.rpt
+{% else %}
 all: ${NAME}.bit
+{% endif %}
 
 ${BUILDDIR}:
 	mkdir ${BUILDDIR}
@@ -15,6 +24,30 @@ ${NAME}.fasm: ${NAME}-nextpnr.mk | ${BUILDDIR}
 
 ${NAME}.bit: ${NAME}.fasm
 	cd ${BUILDDIR} && write_bitstream -d ${BITSTREAM_DEVICE} -f ${NAME}.fasm -p ${PARTNAME} -b ${NAME}.bit
+
+{% if fasm2bels %}
+timing_summary.rpt: ${NAME}.bit.v
+	bash vivado.sh
+
+${NAME}.bit.v: ${NAME}.bit
+	python -m fasm2bels \
+		--top ${NAME} \
+		--db_root {{ dbroot }}/${BITSTREAM_DEVICE} \
+		--part ${PARTNAME} \
+		--bitread bitread \
+		--bit_file ${NAME}.bit \
+		--fasm_file ${NAME}.bit.fasm \
+		--eblif ${NAME}.blif \
+		--pcf ${PCF} \
+		--connection_database channels.db \
+		--rr_graph ${RR_GRAPH} \
+		--vpr_grid_map ${VPR_GRID} \
+		--drive 12 \
+		--iostandard LVCMOS33 \
+		${NAME}.bit.v ${NAME}.bit.tcl
+	rm channels.db
+
+{% endif %}
 
 clean:
 	rm -rf ${BUILDDIR}
