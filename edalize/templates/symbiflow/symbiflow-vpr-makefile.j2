@@ -39,22 +39,22 @@ ${BUILDDIR}:
 	mkdir ${BUILDDIR}
 
 ${TOP}.eblif: | ${BUILDDIR}
-	cd ${BUILDDIR} && synth -t ${TOP} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PARTNAME} ${XDC_OPTS}
+	cd ${BUILDDIR} && symbiflow_synth -t ${TOP} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PARTNAME} ${XDC_OPTS}
 
 ${TOP}.net: ${TOP}.eblif
-	cd ${BUILDDIR} && ${VPR_OPTIONS} pack -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
+	cd ${BUILDDIR} && ${VPR_OPTIONS} symbiflow_pack -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
 
 ${TOP}.place: ${TOP}.net
-	cd ${BUILDDIR} && ${VPR_SEED} ${VPR_OPTIONS} place -e ${TOP}.eblif -d ${DEVICE} -p ${PCF} -n ${TOP}.net -P ${PARTNAME} ${SDC_OPTS}
+	cd ${BUILDDIR} && ${VPR_SEED} ${VPR_OPTIONS} symbiflow_place -e ${TOP}.eblif -d ${DEVICE} -p ${PCF} -n ${TOP}.net -P ${PARTNAME} ${SDC_OPTS}
 
 ${TOP}.route: ${TOP}.place
-	cd ${BUILDDIR} && ${VPR_OPTIONS} route -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
+	cd ${BUILDDIR} && ${VPR_OPTIONS} symbiflow_route -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
 
 ${TOP}.fasm: ${TOP}.route
-	cd ${BUILDDIR} && ${VPR_OPTIONS} write_fasm -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
+	cd ${BUILDDIR} && ${VPR_OPTIONS} symbiflow_write_fasm -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
 
 ${TOP}.bit: ${TOP}.fasm
-	cd ${BUILDDIR} && write_bitstream -d ${BITSTREAM_DEVICE} -f ${TOP}.fasm -p ${PARTNAME} -b ${TOP}.bit
+	cd ${BUILDDIR} && symbiflow_write_bitstream -d ${BITSTREAM_DEVICE} -f ${TOP}.fasm -p ${PARTNAME} -b ${TOP}.bit
 
 {% if fasm2bels %}
 timing_summary.rpt: ${TOP}.bit.v

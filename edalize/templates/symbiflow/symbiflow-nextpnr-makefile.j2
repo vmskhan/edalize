@@ -23,7 +23,7 @@ ${NAME}.fasm: ${NAME}-nextpnr.mk | ${BUILDDIR}
 	$(MAKE) -f ${NAME}-nextpnr.mk
 
 ${NAME}.bit: ${NAME}.fasm
-	cd ${BUILDDIR} && write_bitstream -d ${BITSTREAM_DEVICE} -f ${NAME}.fasm -p ${PARTNAME} -b ${NAME}.bit
+	cd ${BUILDDIR} && symbiflow_write_bitstream -d ${BITSTREAM_DEVICE} -f ${NAME}.fasm -p ${PARTNAME} -b ${NAME}.bit
 
 {% if fasm2bels %}
 timing_summary.rpt: ${NAME}.bit.v
