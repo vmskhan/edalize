@@ -10,6 +10,7 @@ PCF	:= {{ pcf }}
 {% if fasm2bels %}
 RR_GRAPH = {{ rr_graph }}
 VPR_GRID = {{ vpr_grid }}
+VPR_CAPNP_SCHEMA_DIR = {{ vpr_capnp_schema }}
 
 all: timing_summary.rpt
 {% else %}
@@ -42,6 +43,7 @@ ${NAME}.bit.v: ${NAME}.bit
 		--connection_database channels.db \
 		--rr_graph ${RR_GRAPH} \
 		--vpr_grid_map ${VPR_GRID} \
+		--vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR} \
 		--drive 12 \
 		--iostandard LVCMOS33 \
 		${NAME}.bit.v ${NAME}.bit.tcl

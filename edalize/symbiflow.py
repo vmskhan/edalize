@@ -110,6 +110,7 @@ class Symbiflow(Edatool):
         pins_constraints = None
         rr_graph = None
         vpr_grid = None
+        vpr_capnp_schema = None
         for f in src_files:
             if f.file_type in ['PCF']:
                 pins_constraints = f.name
@@ -119,6 +120,8 @@ class Symbiflow(Edatool):
                 rr_graph = f.name
             if f.file_type in ['VPRGrid']:
                 vpr_grid = f.name
+            if f.file_type in ['capnp']:
+                vpr_capnp_schema = f.name
 
         fasm2bels = self.tool_options.get('fasm2bels', False)
         dbroot = self.tool_options.get('dbroot', None)
@@ -152,6 +155,7 @@ class Symbiflow(Edatool):
                 'pcf': pins_constraints,
                 'rr_graph': rr_graph,
                 'vpr_grid': vpr_grid,
+                'vpr_capnp_schema': vpr_capnp_schema,
                 'dbroot': dbroot,
             }
 
@@ -174,6 +178,7 @@ class Symbiflow(Edatool):
 
         vpr_grid = None
         rr_graph = None
+        vpr_capnp_schema = None
 
         for f in src_files:
             if f.file_type in ['verilogSource']:
@@ -190,6 +195,8 @@ class Symbiflow(Edatool):
                 rr_graph = f.name
             if f.file_type in ['VPRGrid']:
                 vpr_grid = f.name
+            if f.file_type in ['capnp']:
+                vpr_capnp_schema = f.name
 
         builddir = self.tool_options.get('builddir', 'build')
 
@@ -258,6 +265,7 @@ class Symbiflow(Edatool):
             'fasm2bels': fasm2bels,
             'rr_graph': rr_graph,
             'vpr_grid': vpr_grid,
+            'vpr_capnp_schema': vpr_capnp_schema,
             'dbroot': dbroot,
             'seed': seed,
         }
