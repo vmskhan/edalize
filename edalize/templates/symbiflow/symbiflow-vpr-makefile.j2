@@ -29,6 +29,7 @@ SDC_OPTS = "-s ${SDC}"
 {% if fasm2bels %}
 RR_GRAPH = {{ rr_graph }}
 VPR_GRID = {{ vpr_grid }}
+VPR_CAPNP_SCHEMA_DIR = {{ vpr_capnp_schema }}
 
 all: timing_summary.rpt
 {% else %}
@@ -73,6 +74,7 @@ ${TOP}.bit.v:
 		--rr_graph ${RR_GRAPH} \
 		--route_file ${TOP}.route \
 		--vpr_grid_map ${VPR_GRID} \
+		--vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR} \
 		${TOP}.bit.v ${TOP}.bit.tcl
 	rm channels.db
 
