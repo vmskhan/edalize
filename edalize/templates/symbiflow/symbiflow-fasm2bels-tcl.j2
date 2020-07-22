@@ -3,7 +3,7 @@ create_project -force -part {{ part }} design design
 read_verilog {{ top }}.bit.v
 synth_design -top {{ top }}
 
-source {{ top }}.bit.tcl
+read_xdc {{ top }}.bit.xdc
 
 write_checkpoint -force design_{{ top }}_after_source.dcp
 
