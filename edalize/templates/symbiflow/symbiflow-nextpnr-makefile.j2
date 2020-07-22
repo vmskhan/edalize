@@ -32,7 +32,6 @@ timing_summary.rpt: ${NAME}.bit.v
 
 ${NAME}.bit.v: ${NAME}.bit
 	python -m fasm2bels \
-		--top ${NAME} \
 		--db_root {{ dbroot }}/${BITSTREAM_DEVICE} \
 		--part ${PARTNAME} \
 		--bitread bitread \

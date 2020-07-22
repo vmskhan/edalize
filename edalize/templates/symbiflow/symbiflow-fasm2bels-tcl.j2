@@ -1,7 +1,7 @@
 create_project -force -part {{ part }} design design
 
 read_verilog {{ top }}.bit.v
-synth_design -top {{ top }}
+synth_design -top top
 
 read_xdc {{ top }}.bit.xdc
 
