@@ -18,12 +18,17 @@ VPR_OPTIONS = VPR_OPTIONS="{{ options }}"
 VPR_SEED = VPR_SEED="--seed {{ seed }}"
 {%- endif %}
 
+{% if pcf -%}
+PCF_OPTS = -p ${PCF}
+PCF_FASM2BELS_OPTS = --pcf ${PCF}
+{%- endif %}
+
 {% if xdc -%}
-XDC_OPTS = "-x ${XDC}"
+XDC_OPTS = -x ${XDC}
 {%- endif %}
 
 {% if sdc -%}
-SDC_OPTS = "-s ${SDC}"
+SDC_OPTS = -s ${SDC}
 {%- endif %}
 
 {% if fasm2bels %}
@@ -46,7 +51,7 @@ ${TOP}.net: ${TOP}.eblif
 	cd ${BUILDDIR} && ${VPR_OPTIONS} symbiflow_pack -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
 
 ${TOP}.place: ${TOP}.net
-	cd ${BUILDDIR} && ${VPR_SEED} ${VPR_OPTIONS} symbiflow_place -e ${TOP}.eblif -d ${DEVICE} -p ${PCF} -n ${TOP}.net -P ${PARTNAME} ${SDC_OPTS}
+	cd ${BUILDDIR} && ${VPR_SEED} ${VPR_OPTIONS} symbiflow_place -e ${TOP}.eblif -d ${DEVICE} -n ${TOP}.net -P ${PARTNAME} ${SDC_OPTS} ${PCF_OPTS}
 
 ${TOP}.route: ${TOP}.place
 	cd ${BUILDDIR} && ${VPR_OPTIONS} symbiflow_route -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
@@ -68,13 +73,13 @@ ${TOP}.bit.v:
 		--bitread bitread \
 		--bit_file ${TOP}.bit \
 		--fasm_file ${TOP}.bit.fasm \
-		--pcf ${PCF} \
 		--eblif ${TOP}.eblif \
 		--connection_database channels.db \
 		--rr_graph ${RR_GRAPH} \
 		--route_file ${TOP}.route \
 		--vpr_grid_map ${VPR_GRID} \
 		--vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR} \
+		${PCF_FASM2BELS_OPTS} \
 		${TOP}.bit.v ${TOP}.bit.xdc
 	rm channels.db
 
