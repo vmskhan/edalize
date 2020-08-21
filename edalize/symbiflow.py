@@ -73,6 +73,7 @@ class Symbiflow(Edatool):
         (src_files, incdirs) = self._get_fileset_files(force_slash=True)
 
         yosys_synth_options = self.tool_options.get('yosys_synth_options', '')
+        yosys_additional_commands = self.tool_options.get('yosys_additional_commands', '')
         nextpnr_edam = {
                 'files'         : self.files,
                 'name'          : self.name,
@@ -80,6 +81,7 @@ class Symbiflow(Edatool):
                 'tool_options'  : {'nextpnr' : {
                                         'arch' : 'xilinx',
                                         'yosys_synth_options' : yosys_synth_options,
+                                        'yosys_additional_commands' : yosys_additional_commands,
                                         'nextpnr_as_subtool' : True,
                                         }
 
@@ -152,7 +154,6 @@ class Symbiflow(Edatool):
                 'bitstream_device' : bitstream_device,
                 'builddir' : builddir,
                 'fasm2bels': fasm2bels,
-                'pcf': pins_constraints,
                 'rr_graph': rr_graph,
                 'vpr_grid': vpr_grid,
                 'vpr_capnp_schema': vpr_capnp_schema,

@@ -5,8 +5,6 @@ PARTNAME:= {{ partname }}
 BITSTREAM_DEVICE := {{ bitstream_device }}
 BUILDDIR:= {{ builddir }}
 
-PCF	:= {{ pcf }}
-
 {% if fasm2bels %}
 RR_GRAPH = {{ rr_graph }}
 VPR_GRID = {{ vpr_grid }}
@@ -37,8 +35,7 @@ ${NAME}.bit.v: ${NAME}.bit
 		--bitread bitread \
 		--bit_file ${NAME}.bit \
 		--fasm_file ${NAME}.bit.fasm \
-		--eblif ${NAME}.blif \
-		--pcf ${PCF} \
+		--eblif ${NAME}.eblif \
 		--connection_database channels.db \
 		--rr_graph ${RR_GRAPH} \
 		--vpr_grid_map ${VPR_GRID} \
