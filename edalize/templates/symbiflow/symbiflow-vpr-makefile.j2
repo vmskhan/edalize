@@ -3,12 +3,18 @@
 TOP	:= {{ top }}
 VERILOG := {{ sources }}
 PARTNAME:= {{ partname }}
-DEVICE  := {{ part }}_test
+DEVICE  := {{ part }}_{{ device_suffix }}
 BITSTREAM_DEVICE := {{ bitstream_device }}
 SDC	:= {{ sdc }}
 PCF	:= {{ pcf }}
 XDC	:= {{ xdc }}
 BUILDDIR:= {{ builddir }}
+TOOLCHAIN_PREFIX := {{ toolchain_prefix }}
+{% if toolchain_prefix -%}
+WRITEBIT_STREAM_PART_PARAMETER = "-p"
+{% else %}
+WRITE_BITSTREAM_PART_PARAMETER = "-P"
+{%- endif %}
 
 {% if options -%}
 VPR_OPTIONS = VPR_OPTIONS="{{ options }}"
@@ -45,22 +51,22 @@ ${BUILDDIR}:
 	mkdir ${BUILDDIR}
 
 ${TOP}.eblif: | ${BUILDDIR}
-	cd ${BUILDDIR} && symbiflow_synth -t ${TOP} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PARTNAME} ${XDC_OPTS}
+	cd ${BUILDDIR} && ${TOOLCHAIN_PREFIX}synth -t ${TOP} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PARTNAME} ${XDC_OPTS}
 
 ${TOP}.net: ${TOP}.eblif
-	cd ${BUILDDIR} && ${VPR_OPTIONS} symbiflow_pack -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
+	cd ${BUILDDIR} && ${VPR_OPTIONS} ${TOOLCHAIN_PREFIX}pack -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
 
 ${TOP}.place: ${TOP}.net
-	cd ${BUILDDIR} && ${VPR_SEED} ${VPR_OPTIONS} symbiflow_place -e ${TOP}.eblif -d ${DEVICE} -n ${TOP}.net -P ${PARTNAME} ${SDC_OPTS} ${PCF_OPTS}
+	cd ${BUILDDIR} && ${VPR_SEED} ${VPR_OPTIONS} ${TOOLCHAIN_PREFIX}place -e ${TOP}.eblif -d ${DEVICE} -n ${TOP}.net -P ${PARTNAME} ${SDC_OPTS} ${PCF_OPTS}
 
 ${TOP}.route: ${TOP}.place
-	cd ${BUILDDIR} && ${VPR_OPTIONS} symbiflow_route -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
+	cd ${BUILDDIR} && ${VPR_OPTIONS} ${TOOLCHAIN_PREFIX}route -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
 
 ${TOP}.fasm: ${TOP}.route
-	cd ${BUILDDIR} && ${VPR_OPTIONS} symbiflow_write_fasm -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
+	cd ${BUILDDIR} && ${VPR_OPTIONS} ${TOOLCHAIN_PREFIX}write_fasm -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
 
 ${TOP}.bit: ${TOP}.fasm
-	cd ${BUILDDIR} && symbiflow_write_bitstream -d ${BITSTREAM_DEVICE} -f ${TOP}.fasm -p ${PARTNAME} -b ${TOP}.bit
+	cd ${BUILDDIR} && ${TOOLCHAIN_PREFIX}write_bitstream -d ${BITSTREAM_DEVICE} -f ${TOP}.fasm ${WRITE_BITSTREAM_PART_PARAMETER} ${PARTNAME} -b ${TOP}.bit
 
 {% if fasm2bels %}
 timing_summary.rpt: ${TOP}.bit.v

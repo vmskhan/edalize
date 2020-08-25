@@ -207,23 +207,32 @@ class Symbiflow(Edatool):
 
         part = self.tool_options.get('part', None)
         package = self.tool_options.get('package', None)
+        vendor = self.tool_options.get('vendor', None)
 
         assert part is not None, 'Missing required "part" parameter'
         assert package is not None, 'Missing required "package" parameter'
 
-        if 'xc7a' in part:
-            bitstream_device = 'artix7'
-        if 'xc7z' in part:
-            bitstream_device = 'zynq7'
-        if 'xc7k' in part:
-            bitstream_device = 'kintex7'
+        if vendor == 'xilinx':
+            if 'xc7a' in part:
+                bitstream_device = 'artix7'
+            if 'xc7z' in part:
+                bitstream_device = 'zynq7'
+            if 'xc7k' in part:
+                bitstream_device = 'kintex7'
 
-        partname = part + package
+            partname = part + package
 
-        # a35t are in fact a50t
-        # leave partname with 35 so we access correct DB
-        if part == 'xc7a35t':
-            part = 'xc7a50t'
+            # a35t are in fact a50t
+            # leave partname with 35 so we access correct DB
+            if part == 'xc7a35t':
+                part = 'xc7a50t'
+            device_suffix = 'test'
+            toolchain_prefix = 'symbiflow_'
+        elif vendor == 'quicklogic':
+            partname = package
+            device_suffix = 'wlcsp'
+            bitstream_device = part + "_" + device_suffix
+            toolchain_prefix = ''
 
         options = self.tool_options.get('options', None)
 
@@ -269,6 +278,8 @@ class Symbiflow(Edatool):
             'vpr_capnp_schema': vpr_capnp_schema,
             'dbroot': dbroot,
             'seed': seed,
+            'device_suffix': device_suffix,
+            'toolchain_prefix': toolchain_prefix,
         }
 
         self.render_template('symbiflow-vpr-makefile.j2',
