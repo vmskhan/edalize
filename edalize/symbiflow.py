@@ -148,6 +148,13 @@ class Symbiflow(Edatool):
                                  'vivado.sh',
                                  dict())
 
+        vendor = self.tool_options.get('vendor', None)
+
+        source = self.tool_options.get('source', None)
+
+        if source:
+            source = source + " " + vendor
+
         makefile_params = {
                 'top' : self.name,
                 'partname' : partname,
@@ -158,6 +165,7 @@ class Symbiflow(Edatool):
                 'vpr_grid': vpr_grid,
                 'vpr_capnp_schema': vpr_capnp_schema,
                 'dbroot': dbroot,
+                'source': source,
             }
 
         self.render_template('symbiflow-nextpnr-makefile.j2',
@@ -261,6 +269,11 @@ class Symbiflow(Edatool):
 
         seed = self.tool_options.get('seed', None)
 
+        source = self.tool_options.get('source', None)
+
+        if source:
+            source = source + " " + vendor
+
         makefile_params = {
             'top': self.toplevel,
             'sources': ' '.join(file_list),
@@ -280,6 +293,7 @@ class Symbiflow(Edatool):
             'seed': seed,
             'device_suffix': device_suffix,
             'toolchain_prefix': toolchain_prefix,
+            'source': source,
         }
 
         self.render_template('symbiflow-vpr-makefile.j2',
