@@ -56,7 +56,7 @@ ${BUILDDIR}:
 	mkdir ${BUILDDIR}
 
 ${TOP}.eblif: | ${BUILDDIR}
-	${SOURCE_OPTS} cd ${BUILDDIR} && ${TOOLCHAIN_PREFIX}synth -t ${TOP} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PARTNAME} ${XDC_OPTS}
+	${SOURCE_OPTS} cd ${BUILDDIR} && ${TOOLCHAIN_PREFIX}synth -t ${TOP} -v ${VERILOG} -d ${BITSTREAM_DEVICE} -p ${PCF} -P ${PARTNAME} ${XDC_OPTS}
 
 ${TOP}.net: ${TOP}.eblif
 	${SOURCE_OPTS} cd ${BUILDDIR} && ${VPR_OPTIONS} ${TOOLCHAIN_PREFIX}pack -e ${TOP}.eblif -d ${DEVICE} ${SDC_OPTS}
