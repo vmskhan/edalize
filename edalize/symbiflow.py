@@ -59,6 +59,9 @@ class Symbiflow(Edatool):
                         {'name' : 'seed',
                          'type' : 'String',
                          'desc' : 'Seed assigned to the PnR tool.'},
+                        {'name' : 'environment_script',
+                         'type' : 'String',
+                         'desc' : 'Optional bash script that will be sourced before each build step.'},
                    ]}
 
             symbiflow_members = symbiflow_help['members']
@@ -148,6 +151,14 @@ class Symbiflow(Edatool):
                                  'vivado.sh',
                                  dict())
 
+        vendor = self.tool_options.get('vendor', None)
+
+
+        # Optional script that will be sourced right before executing each build step in Makefile
+        # This script can for example setup enviroment variables or conda enviroment.
+        # This file needs to be a bash file
+        environment_script = self.tool_options.get('environment_script', None)
+
         makefile_params = {
                 'top' : self.name,
                 'partname' : partname,
@@ -158,6 +169,7 @@ class Symbiflow(Edatool):
                 'vpr_grid': vpr_grid,
                 'vpr_capnp_schema': vpr_capnp_schema,
                 'dbroot': dbroot,
+                'environment_script': environment_script,
             }
 
         self.render_template('symbiflow-nextpnr-makefile.j2',
@@ -207,23 +219,34 @@ class Symbiflow(Edatool):
 
         part = self.tool_options.get('part', None)
         package = self.tool_options.get('package', None)
+        vendor = self.tool_options.get('vendor', None)
 
         assert part is not None, 'Missing required "part" parameter'
         assert package is not None, 'Missing required "package" parameter'
 
-        if 'xc7a' in part:
-            bitstream_device = 'artix7'
-        if 'xc7z' in part:
-            bitstream_device = 'zynq7'
-        if 'xc7k' in part:
-            bitstream_device = 'kintex7'
+        if vendor == 'xilinx':
+            if 'xc7a' in part:
+                bitstream_device = 'artix7'
+            if 'xc7z' in part:
+                bitstream_device = 'zynq7'
+            if 'xc7k' in part:
+                bitstream_device = 'kintex7'
 
-        partname = part + package
+            partname = part + package
 
-        # a35t are in fact a50t
-        # leave partname with 35 so we access correct DB
-        if part == 'xc7a35t':
-            part = 'xc7a50t'
+            # a35t are in fact a50t
+            # leave partname with 35 so we access correct DB
+            if part == 'xc7a35t':
+                part = 'xc7a50t'
+            device_suffix = 'test'
+            toolchain_prefix = 'symbiflow_'
+        elif vendor == 'quicklogic':
+            partname = package
+            device_suffix = 'wlcsp'
+            bitstream_device = part + "_" + device_suffix
+            # Newest Quicklogic toolchain release do not have any toolchain_prefix
+            # if if will change in the future this variable should be adjusted.
+            toolchain_prefix = ''
 
         options = self.tool_options.get('options', None)
 
@@ -252,6 +275,12 @@ class Symbiflow(Edatool):
 
         seed = self.tool_options.get('seed', None)
 
+
+        # Optional script that will be sourced right before executing each build step in Makefile
+        # This script can for example setup enviroment variables or conda enviroment.
+        # This file needs to be a bash file
+        environment_script = self.tool_options.get('environment_script', None)
+
         makefile_params = {
             'top': self.toplevel,
             'sources': ' '.join(file_list),
@@ -269,6 +298,9 @@ class Symbiflow(Edatool):
             'vpr_capnp_schema': vpr_capnp_schema,
             'dbroot': dbroot,
             'seed': seed,
+            'device_suffix': device_suffix,
+            'toolchain_prefix': toolchain_prefix,
+            'environment_script': environment_script,
         }
 
         self.render_template('symbiflow-vpr-makefile.j2',
