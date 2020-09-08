@@ -16,8 +16,8 @@ all: timing_summary.rpt
 all: ${NAME}.bit
 {% endif %}
 
-{% if source -%}
-SOURCE_OPTS = source {{ source }} &&
+{% if environment_script -%}
+SOURCE_OPTS = source {{ environment_script }} &&
 {%- endif %}
 
 ${BUILDDIR}:

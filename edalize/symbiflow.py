@@ -59,6 +59,9 @@ class Symbiflow(Edatool):
                         {'name' : 'seed',
                          'type' : 'String',
                          'desc' : 'Seed assigned to the PnR tool.'},
+                        {'name' : 'environment_script',
+                         'type' : 'String',
+                         'desc' : 'Optional bash script that will be sourced before each build step.'},
                    ]}
 
             symbiflow_members = symbiflow_help['members']
@@ -150,10 +153,11 @@ class Symbiflow(Edatool):
 
         vendor = self.tool_options.get('vendor', None)
 
-        source = self.tool_options.get('source', None)
 
-        if source:
-            source = source + " " + vendor
+        # Optional script that will be sourced right before executing each build step in Makefile
+        # This script can for example setup enviroment variables or conda enviroment.
+        # This file needs to be a bash file
+        environment_script = self.tool_options.get('environment_script', None)
 
         makefile_params = {
                 'top' : self.name,
@@ -165,7 +169,7 @@ class Symbiflow(Edatool):
                 'vpr_grid': vpr_grid,
                 'vpr_capnp_schema': vpr_capnp_schema,
                 'dbroot': dbroot,
-                'source': source,
+                'environment_script': environment_script,
             }
 
         self.render_template('symbiflow-nextpnr-makefile.j2',
@@ -240,6 +244,8 @@ class Symbiflow(Edatool):
             partname = package
             device_suffix = 'wlcsp'
             bitstream_device = part + "_" + device_suffix
+            # Newest Quicklogic toolchain release do not have any toolchain_prefix
+            # if if will change in the future this variable should be adjusted.
             toolchain_prefix = ''
 
         options = self.tool_options.get('options', None)
@@ -269,10 +275,11 @@ class Symbiflow(Edatool):
 
         seed = self.tool_options.get('seed', None)
 
-        source = self.tool_options.get('source', None)
 
-        if source:
-            source = source + " " + vendor
+        # Optional script that will be sourced right before executing each build step in Makefile
+        # This script can for example setup enviroment variables or conda enviroment.
+        # This file needs to be a bash file
+        environment_script = self.tool_options.get('environment_script', None)
 
         makefile_params = {
             'top': self.toplevel,
@@ -293,7 +300,7 @@ class Symbiflow(Edatool):
             'seed': seed,
             'device_suffix': device_suffix,
             'toolchain_prefix': toolchain_prefix,
-            'source': source,
+            'environment_script': environment_script,
         }
 
         self.render_template('symbiflow-vpr-makefile.j2',
