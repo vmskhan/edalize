@@ -47,7 +47,8 @@ ${NAME}.bit.v: ${NAME}.bit
 		--vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR} \
 		--drive 12 \
 		--iostandard LVCMOS33 \
-		${NAME}.bit.v ${NAME}.bit.xdc
+		--verilog_file ${NAME}.bit.v \
+		--xdc_file ${NAME}.bit.xdc
 	rm channels.db
 
 {% endif %}

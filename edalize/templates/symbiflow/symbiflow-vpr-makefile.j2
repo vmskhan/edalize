@@ -91,7 +91,8 @@ ${TOP}.bit.v:
 		--vpr_grid_map ${VPR_GRID} \
 		--vpr_capnp_schema_dir ${VPR_CAPNP_SCHEMA_DIR} \
 		${PCF_FASM2BELS_OPTS} \
-		${TOP}.bit.v ${TOP}.bit.xdc
+		--verilog_file ${TOP}.bit.v \
+		--xdc_file ${TOP}.bit.xdc
 	rm channels.db
 
 {% endif %}
