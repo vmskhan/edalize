@@ -113,12 +113,15 @@ class Nextpnr(Edatool):
 
         assert chipdb and xdc, "Missing required files."
 
+        additional_options = self.tool_options.get('nextpnr_impl_options', '')
+
         template_vars = {
                 'arch'              : arch,
                 'chipdb'            : chipdb,
                 'constr'            : xdc,
                 'default_target'    : output_format,
-                'name'              : self.name
+                'name'              : self.name,
+                'additional_options': additional_options,
         }
 
         makefile_name = self.name + '-nextpnr.mk' if part_of_toolchain else 'Makefile'
