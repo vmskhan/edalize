@@ -36,6 +36,7 @@ setup(
         'templates/nextpnr/nextpnr-makefile.j2',
         'templates/yosys/yosys-makefile.j2',
         'templates/yosys/yosys-script-tcl.j2',
+        'templates/surelog/surelog-makefile.j2',
     ]},
     author = "Olof Kindgren",
     author_email = "olof.kindgren@gmail.com",

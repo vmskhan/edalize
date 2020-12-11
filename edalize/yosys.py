@@ -25,10 +25,12 @@ class Yosys(Edatool):
                         {'name' : 'makefile_name',
                          'type' : 'String',
                          'desc' : 'Generated makefile name, defaults to $name.mk'},
-
                         {'name' : 'script_name',
                          'type' : 'String',
                          'desc' : 'Generated tcl script filename, defaults to $name.mk'},
+                        {'name' : 'library_files',
+                         'type' : 'String',
+                         'desc' : 'List of the library files for Surelog'},
                         ],
                     'lists' : [
                         {'name' : 'yosys_read_options',
@@ -40,9 +42,9 @@ class Yosys(Edatool):
                         {'name' : 'yosys_additional_commands',
                          'type' : 'String',
                          'desc' : 'Additional commands for the yosys script'},
-                        {'name' : 'library_files',
+                        {'name' : 'surelog_options',
                          'type' : 'String',
-                         'desc' : 'List of the library files for Surelog'},
+                         'desc' : 'Additional options for the Surelog'},
                         ]}
 
     @classmethod
@@ -90,14 +92,14 @@ class Yosys(Edatool):
                     'toplevel'      : self.toplevel,
                     'parameters'    : self.parameters,
                     'tool_options'  : {'surelog' : {
-                                            'library_files' : self.tool_options.get('library_files', []),
+                                            'library_files' : self.tool_options.get('library_files', None),
                                             'surelog_options' : self.tool_options.get('surelog_options', []),
                                             }
                                     }
                     }
 
             surelog = getattr(import_module("edalize.surelog"), 'Surelog')(surelog_edam, self.work_root)
-            surelog.configure()
+            surelog.configure(self.args)
             self.vlogparam.clear() # vlogparams are handled by Surelog
             self.vlogdefine.clear() # vlogdefines are handled by Surelog
             file_table.append('read_uhdm ' + yosys_read_options + ' {' + os.path.abspath(self.work_root + '/' + self.toplevel + '.uhdm') + '}')
@@ -132,8 +134,8 @@ class Yosys(Edatool):
         script_name = self. tool_options.get('script_name', self.name + '.tcl')
         template_vars = {
                 'verilog_defines'     : "{" + " ".join(verilog_defines) + "}",
-				'verilog_params'	  : "\n".join(verilog_params),
-                'file_table'          : "{" + " ".join(file_table) + "}",
+                'verilog_params'      : "\n".join(verilog_params),
+                'file_table'          : "\n".join(file_table),
                 'incdirs'             : ' '.join(['-I'+d for d in incdirs]),
                 'top'                 : self.toplevel,
                 'synth_command'       : "synth_" + arch,

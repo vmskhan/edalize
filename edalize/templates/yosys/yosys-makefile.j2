@@ -9,16 +9,18 @@ all: $(TARGET).{{ default_target }}
 	$(MAKE) -f surelog.mk
 
 DEPENDENCIES := {{ top }}.uhdm {{ script_name }}
+YOSYS_BIN = uhdm-yosys
 {% else %}
 DEPENDENCIES := {{ script_name }}
+YOSYS_BIN = yosys
 {%- endif %}
 
 %.blif: ${DEPENDENCIES}
-	uhdm-yosys -l yosys.log -p "tcl {{ script_name }}"
+	${YOSYS_BIN} -l yosys.log -p "tcl {{ script_name }}"
 %.json: ${DEPENDENCIES}
-	uhdm-yosys -l yosys.log -p "tcl {{ script_name }}"
+	${YOSYS_BIN} -l yosys.log -p "tcl {{ script_name }}"
 %.edif: ${DEPENDENCIES}
-	uhdm-yosys -l yosys.log -p "tcl {{ script_name }}"
+	${YOSYS_BIN} -l yosys.log -p "tcl {{ script_name }}"
 
 clean:
 	rm -f $(TARGET).blif $(TARGET).json
