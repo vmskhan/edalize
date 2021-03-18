@@ -62,7 +62,7 @@ class Symbiflow(Edatool):
                         {'name' : 'environment_script',
                          'type' : 'String',
                          'desc' : 'Optional bash script that will be sourced before each build step.'},
-                   ]}
+                    ]}
 
             symbiflow_members = symbiflow_help['members']
 
