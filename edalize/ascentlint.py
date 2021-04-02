@@ -1,7 +1,3 @@
-# Copyright edalize contributors
-# Licensed under the 2-Clause BSD License, see LICENSE for details.
-# SPDX-License-Identifier: BSD-2-Clause
-
 import logging
 import re
 import os
@@ -19,15 +15,9 @@ class Ascentlint(Edatool):
     def get_doc(cls, api_ver):
         if api_ver == 0:
             return {'description' : """ Real Intent Ascent Lint backend
-
 Ascent Lint performs static source code analysis on HDL code and checks for
 common coding errors or coding style violations.
-""",
-                    'lists' : [
-                        {'name' : 'ascentlint_options',
-                         'type' : 'String',
-                         'desc' : 'Additional run options for ascentlint'}
-                    ]}
+"""}
 
     def configure_main(self):
         (src_files, incdirs) = self._get_fileset_files(force_slash=True)
@@ -40,7 +30,6 @@ common coding errors or coding style violations.
 
         template_vars = {
             'name'             : self.name,
-            'ascentlint_options' : ' '.join(self.tool_options.get('ascentlint_options', [])),
             'tcl_source_files' : tcl_source_files,
             'waiver_files'     : waiver_files,
             'toplevel'         : self.toplevel,
